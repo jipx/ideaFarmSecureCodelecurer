@@ -1,0 +1,5 @@
+{
+  "vuln_types": ["SQL Injection", "XSS"],
+  "criteria": ["Input validation", "Output encoding"],
+  "default_score_weight": 10
+}

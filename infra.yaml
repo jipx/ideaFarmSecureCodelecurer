@@ -1,0 +1,191 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Secure Coding Grader - Full Stack with Lambda, S3, SQS, DDB, and Poll API
+
+Parameters:
+  SourceBucketName:
+    Type: String
+    Default: secure-code-submissions
+
+  ReportBucketName:
+    Type: String
+    Default: secure-code-reports
+
+  QueueName:
+    Type: String
+    Default: SecureCodeSubmissionQueue
+
+  TableName:
+    Type: String
+    Default: GradingSubmissions
+
+Resources:
+  SourceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref SourceBucketName
+
+  ReportBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ReportBucketName
+
+  SubmissionQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref QueueName
+
+  GradingSubmissionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: submission_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: submission_id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  GraderLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: GraderLambdaRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: GraderLambdaPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: 
+                  - !Sub arn:aws:s3:::${SourceBucketName}/*
+                  - !Sub arn:aws:s3:::${ReportBucketName}/*
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                Resource: !GetAtt GradingSubmissionsTable.Arn
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !GetAtt SubmissionQueue.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  GraderLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GraderLambdaFunction
+      Runtime: python3.10
+      Timeout: 60
+      MemorySize: 1024
+      Role: !GetAtt GraderLambdaRole.Arn
+      Handler: grader_lambda_with_result_storage.lambda_handler
+      Code:
+        S3Bucket: placeholder-code-bucket
+        S3Key: grader_lambda_with_result_storage.zip
+      Environment:
+        Variables:
+          SOURCE_BUCKET: !Ref SourceBucketName
+          REPORT_BUCKET: !Ref ReportBucketName
+          TABLE_NAME: !Ref TableName
+
+  GraderEventSource:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt SubmissionQueue.Arn
+      FunctionName: !Ref GraderLambdaFunction
+      BatchSize: 1
+      Enabled: true
+
+  PollLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: PollGradingStatusLambda
+      Runtime: python3.10
+      Timeout: 10
+      Role: !GetAtt GraderLambdaRole.Arn
+      Handler: poll_grading_status_lambda.lambda_handler
+      Code:
+        S3Bucket: placeholder-code-bucket
+        S3Key: poll_grading_status_lambda.zip
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+
+  PollLambdaApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: PollGradingAPI
+
+  PollLambdaResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt: [ PollLambdaApi, RootResourceId ]
+      PathPart: poll
+      RestApiId: !Ref PollLambdaApi
+
+  PollLambdaMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref PollLambdaApi
+      ResourceId: !Ref PollLambdaResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Sub: >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PollLambdaFunction.Arn}/invocations
+
+  PollLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref PollLambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${PollLambdaApi}/*/GET/poll
+
+Outputs:
+  LambdaFunctionName:
+    Description: Lambda function for grading
+    Value: !Ref GraderLambdaFunction
+
+  PollApiEndpoint:
+    Description: Poll grading status by submission_id
+    Value: !Sub "https://${PollLambdaApi}.execute-api.${AWS::Region}.amazonaws.com/prod/poll"
+
+  SourceBucket:
+    Value: !Ref SourceBucket
+
+  ReportBucket:
+    Value: !Ref ReportBucket
+
+  QueueURL:
+    Value: !Ref SubmissionQueue
+
+  TableName:
+    Value: !Ref GradingSubmissionsTable

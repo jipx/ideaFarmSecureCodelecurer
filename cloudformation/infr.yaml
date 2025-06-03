@@ -1,0 +1,292 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Secure Coding Grader - Full Stack with Lambda, S3, SQS, DDB, API Gateway, and Bedrock Agent
+
+Parameters:
+  SourceBucketName:
+    Type: String
+    Default: secure-code-submissions
+  ReportBucketName:
+    Type: String
+    Default: secure-code-reports
+  QueueName:
+    Type: String
+    Default: SecureCodeSubmissionQueue
+  TableName:
+    Type: String
+    Default: GradingSubmissions
+  AgentId:
+    Type: String
+    Description: Bedrock Agent ID
+  AgentAliasId:
+    Type: String
+    Description: Bedrock Agent Alias ID
+  LambdaCodeBucket:
+    Type: String
+    Default: ideafarm-lambda-assets
+    Description: S3 bucket where Lambda code zips are stored
+  StackName:
+    Type: String
+    Default: SecureGrader
+    Description: Name used for tagging and identification
+
+Resources:
+  SourceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref SourceBucketName
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  ReportBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ReportBucketName
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  SubmissionQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Ref QueueName
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  GradingSubmissionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      AttributeDefinitions:
+        - AttributeName: submission_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: submission_id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  GraderLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: GraderLambdaRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: GraderLambdaPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - !Sub arn:aws:s3:::${SourceBucketName}/*
+                  - !Sub arn:aws:s3:::${ReportBucketName}/*
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Scan
+                Resource: !GetAtt GradingSubmissionsTable.Arn
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !GetAtt SubmissionQueue.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  GetSignedUrlLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GetSignedUrlLambda
+      Runtime: python3.10
+      Role: !GetAtt GraderLambdaRole.Arn
+      Handler: index.lambda_handler
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: generate_upload_url.zip
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  GetResultLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GetResultLambda
+      Runtime: python3.10
+      Role: !GetAtt GraderLambdaRole.Arn
+      Handler: index.lambda_handler
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: get_result_lambda.zip
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  DashboardLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: DashboardLambda
+      Runtime: python3.10
+      Role: !GetAtt GraderLambdaRole.Arn
+      Handler: index.lambda_handler
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: dashboard_lambda.zip
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  GraderLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GraderLambdaFunction
+      Runtime: python3.10
+      Role: !GetAtt GraderLambdaRole.Arn
+      Handler: index.lambda_handler
+      Code:
+        S3Bucket: !Ref LambdaCodeBucket
+        S3Key: grading_lambda.zip
+      Tags:
+        - Key: Stack
+          Value: !Ref StackName
+
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: SecureCodeGraderAPI
+
+  SignedUrlResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApi
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: get-signed-url
+
+  SignedUrlMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApi
+      ResourceId: !Ref SignedUrlResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSignedUrlLambda.Arn}/invocations
+
+  PollResultResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApi
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: poll
+
+  PollResultMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApi
+      ResourceId: !Ref PollResultResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetResultLambda.Arn}/invocations
+
+  DashboardResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref RestApi
+      ParentId: !GetAtt RestApi.RootResourceId
+      PathPart: dashboard
+
+  DashboardMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref RestApi
+      ResourceId: !Ref DashboardResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DashboardLambda.Arn}/invocations
+
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: [SignedUrlMethod, PollResultMethod, DashboardMethod]
+    Properties:
+      RestApiId: !Ref RestApi
+      StageName: prod
+
+  PermissionSignedUrl:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref GetSignedUrlLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+
+  PermissionPollResult:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref GetResultLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+
+  PermissionDashboard:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DashboardLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+
+Outputs:
+  GraderLambdaName:
+    Value: !Ref GraderLambdaFunction
+  SignedUrlLambdaName:
+    Value: !Ref GetSignedUrlLambda
+  PollResultLambdaName:
+    Value: !Ref GetResultLambda
+  DashboardLambdaName:
+    Value: !Ref DashboardLambda
+  SignedUrlApi:
+    Description: Upload ZIP to this presigned URL endpoint
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/get-signed-url"
+  PollApi:
+    Description: Poll grading result by submission_id
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/poll"
+  DashboardApi:
+    Description: Display full report list
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/dashboard"
+  SourceBucket:
+    Value: !Ref SourceBucket
+  ReportBucket:
+    Value: !Ref ReportBucket
+  SQSQueue:
+    Value: !Ref SubmissionQueue
+  DynamoDBTable:
+    Value: !Ref GradingSubmissionsTable
