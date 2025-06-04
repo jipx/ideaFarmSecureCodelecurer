@@ -42,3 +42,27 @@ In edge cases, some messages may reappear in the queue before they're successful
 There's a higher risk of retry/duplicate execution, especially if the Lambda is slow or delayed.
 
 The tight timing suggests that fine-tuning processing time or increasing timeout may help reduce unintended retries.
+
+
+Here's the simulation chart for SQS visibility timeout = 60 seconds (1.0 minute):
+
+![](image-3.png)
+
+
+🔍 Key Observations:
+🔴 Red dotted line marks the 1.0 minute visibility timeout threshold.
+
+🟦 Average submission interval is ~1.74 minutes — still above the timeout.
+
+❗ This increases the chance of retries, as messages could reappear before the function completes (especially if Lambda is slow or delayed).
+
+All submission markers are well above the timeout line, highlighting the risk in high-throughput or delayed processing conditions.
+
+![alt text](image-4.png)
+
+🔍 Conclusion:
+A visibility timeout of 60s will almost guarantee retries under this submission pattern.
+
+100s visibility might still result in retries for messages taking longer to process.
+
+300s provides the most resilience but increases latency in handling failures.
