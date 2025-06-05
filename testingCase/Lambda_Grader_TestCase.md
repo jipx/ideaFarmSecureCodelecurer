@@ -45,3 +45,39 @@ Triggered via SQS when the object is uploaded.
 2. Validate the item in DynamoDB using `submission_id`.
 3. Verify that the report file exists in `secure-code-reports/`.
 
+
+In AWS Lambda, "deploy" and "publish" refer to different but related concepts:
+
+🔧 1. Deploy
+Deploy means updating the function code or configuration, typically the $LATEST version.
+
+When you edit code in the AWS Console or upload a new deployment package (via AWS CLI, SAM, CDK, etc.), you are deploying the changes to the $LATEST version.
+
+This version is mutable — changes immediately overwrite the previous code/config in $LATEST.
+
+🟡 Deploy = "Push updates to $LATEST"
+
+📌 2. Publish
+Publish means creating an immutable snapshot of the current $LATEST version.
+
+When you publish, AWS creates a new version number (e.g., 1, 2, 3, etc.).
+
+That version is read-only — code and configuration are frozen.
+
+This is useful for production stability and safe rollbacks.
+
+🟢 Publish = "Create a fixed version from $LATEST"
+
+🧠 Summary
+Operation	What It Does	Target	Mutable?	Use Case
+Deploy	Updates code/config	$LATEST	✅ Yes	Iteration, testing
+Publish	Freezes $LATEST into version	1, 2, 3...	❌ No	Production, rollback, version control
+
+🏷️ Bonus: Aliases
+You can use aliases to point to a published version:
+
+prod → version 5
+
+dev → $LATEST
+
+This lets you safely route traffic or perform blue/green deployments.
