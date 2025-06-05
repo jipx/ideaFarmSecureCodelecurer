@@ -46,3 +46,4 @@ Send an invalid SQS message like:
 ```
 
 ✅ Expected: Lambda should log an error but **not crash**.
+
