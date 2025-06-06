@@ -5,7 +5,10 @@ import pandas as pd
 st.set_page_config(page_title="📊 Grading Dashboard", layout="wide")
 st.title("📊 Grading Dashboard")
 
-DASHBOARD_API_URL = st.secrets["DASHBOARD_API_URL"]
+DASHBOARD_API_URL = st.secrets["apigateway"]["DASHBOARD_API_URL"]
+
+
+
 
 with st.spinner("Loading submissions..."):
     try:

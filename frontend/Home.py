@@ -4,9 +4,9 @@ import urllib.parse
 import time
 
 # === Cognito Configuration ===
-COGNITO_DOMAIN = st.secrets["COGNITO_DOMAIN"]
-CLIENT_ID = st.secrets["CLIENT_ID"]
-REDIRECT_URI = st.secrets["REDIRECT_URI"]
+COGNITO_DOMAIN = st.secrets["cognito"]["COGNITO_DOMAIN"]
+CLIENT_ID = st.secrets["cognito"]["CLIENT_ID"]
+REDIRECT_URI = st.secrets["cognito"]["REDIRECT_URI"]
 
 def get_login_url():
     return (

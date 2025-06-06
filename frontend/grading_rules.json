@@ -1,0 +1,15 @@
+{
+  "allowed_extensions": [
+    ".js",
+    ".py"
+  ],
+  "exclude_dirs": [
+    "node_modules",
+    "__pycache__"
+  ],
+  "required_security_patterns": [
+    "sanitizeInput",
+    "usePreparedStatements"
+  ],
+  "min_score_threshold": 60
+}
