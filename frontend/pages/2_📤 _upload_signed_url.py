@@ -1,43 +1,62 @@
-
 import streamlit as st
 import requests
 import urllib.parse
 import os
 import time
+from urllib.parse import urlparse
 
-st.title("📤 Upload ZIP to S3 Using Signed URL")
+st.title("📄 Upload ZIP to S3 Using Signed URL")
 
 # Inputs
 student_id = st.text_input("Student ID", value="jipx901")
 email = st.text_input("Email", value="student001@example.com")
 zip_file = st.file_uploader("Upload ZIP file", type=["zip"])
 
+MAX_SIZE_MB = 5
+
 if st.button("Get Signed URL and Upload") and zip_file:
+    if zip_file.size > MAX_SIZE_MB * 1024 * 1024:
+        st.warning(f"🚫 File exceeds {MAX_SIZE_MB}MB limit")
+        st.stop()
+
     with st.spinner("⏳ Uploading..."):
         st.image("images/inprogress.gif", width=200)
 
         try:
-            api_url = st.secrets["signed_url_api"]
-            status_api_url = st.secrets["status_api"]
-            payload = {"student_id": student_id, "email": email}
-            headers = {"x-api-key": st.secrets["api_key"]}
-            api_response = requests.post(api_url, json=payload, headers=headers)
+            api_url= st.secrets["apigateway"]["signed_url_api"]
+           
+            status_api_url = st.secrets["apigateway"]["status_api_url"]
+            payload = {
+                "student_id": student_id,
+                "email": email,
+                "filename": zip_file.name
+            }
+            st.write("📡 Requesting signed URL...")
+            st.json(payload)
+            api_response = requests.post(api_url, json=payload, timeout=10)
+            st.write("📥 Response from signed URL API:")
+            st.json(api_response.json())
             api_response.raise_for_status()
-            signed_url = api_response.json()["signed_url"]
+            response_json = api_response.json()
+            signed_url = response_json.get("url")
+            if not signed_url:
+                st.error("❌ Backend did not return a presigned URL under 'url'.")
+                st.json(response_json)
+                st.stop()
             object_key = api_response.json().get("s3_key", f"submissions/{student_id}/submission.zip")
 
             st.code(signed_url, language="text")
 
             upload_headers = {
-                "Content-Type": "application/zip",
-                "x-amz-meta-submission_id": student_id,
-                "x-amz-meta-email": email
+                "Content-Type": "application/zip"
             }
 
             response = requests.put(signed_url, data=zip_file.getvalue(), headers=upload_headers)
             if response.status_code == 200:
                 st.success("✅ File uploaded successfully to S3")
-                s3_url = f"https://{signed_url.split('/')[2]}/{urllib.parse.quote(object_key)}"
+
+                parsed = urlparse(signed_url)
+                s3_url = f"https://{parsed.netloc}/{urllib.parse.quote(object_key)}"
                 st.markdown(f"**S3 Object URL:** [{s3_url}]({s3_url})")
 
                 # --- Polling for grading status ---
@@ -47,7 +66,12 @@ if st.button("Get Signed URL and Upload") and zip_file:
 
                 for i in range(10):
                     time.sleep(3)
-                    status_response = requests.get(status_url, headers={"x-api-key": st.secrets["api_key"]})
+                    try:
+                        status_response = requests.get(status_url, {}, timeout=5)
+                    except requests.exceptions.Timeout:
+                        polling_message.warning(f"⚠️ Unable to fetch status (attempt {i + 1})")
+                        continue
+
                     if status_response.status_code == 200:
                         status_data = status_response.json()
                         status = status_data.get("status", "unknown").lower()
@@ -69,6 +93,8 @@ if st.button("Get Signed URL and Upload") and zip_file:
 
             else:
                 st.error(f"❌ Upload failed: {response.status_code} - {response.text}")
+                st.code(response.headers, language="json")
+
         except Exception as e:
             st.error(f"❌ Error uploading: {e}")
 else:

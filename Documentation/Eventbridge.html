@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AWS EventBridge Workflow Animation</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      text-align: center;
+      padding: 20px;
+    }
+    .stage {
+      margin: 30px auto;
+      max-width: 600px;
+      padding: 20px;
+      border: 2px dashed #888;
+      border-radius: 12px;
+      background: white;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease;
+      position: relative;
+    }
+    .stage.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    code {
+      display: block;
+      text-align: left;
+      background: #eee;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      font-size: 0.9em;
+    }
+    .controls {
+      margin: 20px auto;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .typewriter-text {
+      font-size: 20px;
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid black;
+      width: 0;
+      animation: typing 3s steps(40, end) forwards, blink .75s step-end infinite;
+    }
+    .loader {
+      display: block;
+      margin: 15px auto;
+      width: 40px;
+      height: 40px;
+    }
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+  </style>
+</head>
+
+    <body>
+    <button onclick="toggleQuiz()" style="position:fixed;top:10px;right:10px;padding:10px 20px;font-size:16px;border:none;border-radius:6px;background:#007acc;color:white;cursor:pointer;z-index:1000;">
+      Show/Hide Quiz
+    </button>
+    <script>
+      function toggleQuiz() {
+        const quiz = document.getElementById('quiz');
+        if (quiz.style.display === 'none') {
+          quiz.style.display = 'block';
+        } else {
+          quiz.style.display = 'none';
+        }
+      }
+      window.onload = () => {
+        document.getElementById('quiz').style.display = 'none';
+      };
+    </script>
+
+  <h1>AWS EventBridge File Submission Flow</h1>
+
+  <div class="controls">
+    <button onclick="showNext()">Next Step</button>
+    <button onclick="resetAnimation()">Restart</button>
+  </div>
+
+  <div class="stage" id="stage1">
+    <h2><span class="typewriter-text">1. User uploads file to S3</span></h2>
+    <img class="loader" src="https://i.gifer.com/ZZ5H.gif" alt="loading">
+    <p>S3 Bucket receives: <strong>submissions/jipx901_project.zip</strong></p>
+<code>{
+  "version": "0",
+  "source": "aws.s3",
+  "detail-type": "Object Created",
+  "detail": {
+    "bucket": {
+      "name": "secure-submissions"
+    },
+    "object": {
+      "key": "submissions/jipx901_project.zip",
+      "size": 4235678
+    }
+  }
+}</code>
+  </div>
+
+  <div class="stage" id="stage2">
+    <h2>2. S3 triggers EventBridge</h2>
+    <img class="loader" src="https://i.gifer.com/ZZ5H.gif" alt="loading">
+    <p>New file event sent to EventBridge.</p>
+  </div>
+
+  <div class="stage" id="stage3">
+    <h2>3. EventBridge Filters the Event</h2>
+    <img class="loader" src="https://i.gifer.com/ZZ5H.gif" alt="loading">
+    <ul>
+      <li>✅ File is <code>.zip</code></li>
+      <li>✅ Size &lt; 5MB</li>
+      <li>✅ Prefix is <code>submissions/</code></li>
+    </ul>
+  </div>
+
+  <div class="stage" id="stage4">
+    <h2>4. Transform S3 Event to Grading Format</h2>
+    <img class="loader" src="https://i.gifer.com/ZZ5H.gif" alt="loading">
+    <code>{
+  "submission_id": "jipx901",
+  "s3_key": "submissions/jipx901_project.zip",
+  "email": "unknown"
+}</code>
+  </div>
+
+  <div class="stage" id="stage5">
+    <h2>5. Send to SQS</h2>
+    <img class="loader" src="https://i.gifer.com/ZZ5H.gif" alt="loading">
+    <p>Transformed JSON is queued for Lambda grading.</p>
+  </div>
+
+  <div class="stage" id="stage6">
+    <h2>6. Lambda Grading Starts</h2>
+    <img class="loader" src="https://i.gifer.com/ZZ5H.gif" alt="loading">
+    <p>Lambda picks the SQS message and starts the secure grading process.</p>
+  </div>
+
+  <script>
+    const stages = document.querySelectorAll('.stage');
+    let current = 0;
+
+    function showNext() {
+      if (current < stages.length) {
+        const stage = stages[current];
+        const loader = stage.querySelector('.loader');
+        stage.classList.add('show');
+        loader.style.display = 'block';
+
+        setTimeout(() => {
+          loader.style.display = 'none';
+        }, 2000);
+
+        current++;
+      }
+    }
+
+    function resetAnimation() {
+      stages.forEach(stage => {
+        stage.classList.remove('show');
+        const loader = stage.querySelector('.loader');
+        if (loader) loader.style.display = 'block';
+      });
+      current = 0;
+    }
+  </script>
+
+<hr>
+<section id="quiz">
+  <h2>AWS EventBridge + Secure Coding Grading Quiz</h2>
+  <style>
+    section#quiz {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .question {
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .question h3 { margin-bottom: 10px; }
+    .question label { display: block; margin: 5px 0; }
+  </style>
+  
+  <div class="question">
+    <h3>1. What triggers the AWS EventBridge in this workflow?</h3>
+    <label><input type="radio" name="q1"> A) A file download from S3</label>
+<label><input type="radio" name="q1"> B) A manual event trigger</label>
+<label><input type="radio" name="q1"> C) A new file upload to the S3 bucket ✅</label>
+<label><input type="radio" name="q1"> D) A message from SQS</label>
+  </div>
+
+
+  <div class="question">
+    <h3>2. What does EventBridge do in the workflow?</h3>
+    <label><input type="radio" name="q2"> A) Stores files in DynamoDB</label>
+<label><input type="radio" name="q2"> B) Automatically deletes old files</label>
+<label><input type="radio" name="q2"> C) Filters and routes events to SQS based on conditions ✅</label>
+<label><input type="radio" name="q2"> D) Encrypts uploaded data</label>
+  </div>
+
+
+  <div class="question">
+    <h3>3. Which condition is NOT mentioned as part of EventBridge filtering?</h3>
+    <label><input type="radio" name="q3"> A) File extension must be .zip</label>
+<label><input type="radio" name="q3"> B) File prefix must be submissions/</label>
+<label><input type="radio" name="q3"> C) File size must be less than 5MB</label>
+<label><input type="radio" name="q3"> D) File must be uploaded by a specific IAM role ✅</label>
+  </div>
+
+
+  <div class="question">
+    <h3>4. What is the role of the Lambda function in the final step?</h3>
+    <label><input type="radio" name="q4"> A) Retrieves the file from S3 and archives it</label>
+<label><input type="radio" name="q4"> B) Deletes the event from the queue</label>
+<label><input type="radio" name="q4"> C) Grades the uploaded code and generates a JSON report ✅</label>
+<label><input type="radio" name="q4"> D) Sends alerts via SNS</label>
+  </div>
+
+
+  <div class="question">
+    <h3>5. What is included in the final grading JSON?</h3>
+    <label><input type="radio" name="q5"> A) EC2 instance IDs and memory logs</label>
+<label><input type="radio" name="q5"> B) AWS Billing breakdown</label>
+<label><input type="radio" name="q5"> C) OWASP Top 10 category scores and feedback ✅</label>
+<label><input type="radio" name="q5"> D) IAM policy summaries</label>
+  </div>
+
+
+  <div class="question">
+    <h3>6. Why use EventBridge instead of a direct S3-to-Lambda trigger?</h3>
+    <label><input type="radio" name="q6"> A) Better logging</label>
+<label><input type="radio" name="q6"> B) Direct file transformation</label>
+<label><input type="radio" name="q6"> C) Fine-grained filtering before SQS ✅</label>
+<label><input type="radio" name="q6"> D) Lower cost</label>
+  </div>
+
+
+  <div class="question">
+    <h3>7. What is the purpose of the submission_id?</h3>
+    <label><input type="radio" name="q7"> A) It acts as a DynamoDB partition key ✅</label>
+<label><input type="radio" name="q7"> B) Name of Lambda function</label>
+<label><input type="radio" name="q7"> C) Indicates the bucket name</label>
+<label><input type="radio" name="q7"> D) Defines Lambda timeout</label>
+  </div>
+
+
+  <div class="question">
+    <h3>8. What happens if Lambda fails and there is no DLQ?</h3>
+    <label><input type="radio" name="q8"> A) Message is lost</label>
+<label><input type="radio" name="q8"> B) Message is retried via visibility timeout ✅</label>
+<label><input type="radio" name="q8"> C) Sent to SNS</label>
+<label><input type="radio" name="q8"> D) File is deleted</label>
+  </div>
+
+
+  <div class="question">
+    <h3>9. What risk is mitigated by checking OWASP Top 10 categories?</h3>
+    <label><input type="radio" name="q9"> A) Cost overruns</label>
+<label><input type="radio" name="q9"> B) Code duplication</label>
+<label><input type="radio" name="q9"> C) Common app-level vulnerabilities ✅</label>
+<label><input type="radio" name="q9"> D) Insufficient logging</label>
+  </div>
+
+
+  <div class="question">
+    <h3>10. Why include feedback per OWASP category?</h3>
+    <label><input type="radio" name="q10"> A) Meet audit requirements</label>
+<label><input type="radio" name="q10"> B) Personalized remediation insights ✅</label>
+<label><input type="radio" name="q10"> C) Link EC2 logs</label>
+<label><input type="radio" name="q10"> D) Encrypt S3 content</label>
+  </div>
+
+
+  <div class="question">
+    <h3>11. What is the purpose of SQS visibility timeout?</h3>
+    <label><input type="radio" name="q11"> A) Message deletion timeout</label>
+<label><input type="radio" name="q11"> B) Retry delay for Lambda ✅</label>
+<label><input type="radio" name="q11"> C) File retention in S3</label>
+<label><input type="radio" name="q11"> D) EventBridge frequency control</label>
+  </div>
+
+
+  <div class="question">
+    <h3>12. What does maxReceiveCount control in SQS?</h3>
+    <label><input type="radio" name="q12"> A) Queue size</label>
+<label><input type="radio" name="q12"> B) Concurrent Lambda count</label>
+<label><input type="radio" name="q12"> C) Max retries before DLQ ✅</label>
+<label><input type="radio" name="q12"> D) Message batch size</label>
+  </div>
+
+
+  <div class="question">
+    <h3>13. What is a common cause of throttling errors when using Amazon Bedrock for secure code grading?</h3>
+    <label><input type="radio" name="q13"> A) Lambda running out of disk space</label>
+<label><input type="radio" name="q13"> B) Calling the Bedrock API too frequently in a short period ✅</label>
+<label><input type="radio" name="q13"> C) EventBridge sending events with invalid JSON</label>
+<label><input type="radio" name="q13"> D) Using an S3 bucket without versioning enabled</label>
+  </div>
+
+
+  <div class="question">
+    <h3>14. How can Amazon SQS help mitigate Bedrock throttling in a grading system?</h3>
+    <label><input type="radio" name="q14"> A) By batching multiple Bedrock API calls into a single request</label>
+<label><input type="radio" name="q14"> B) By automatically retrying failed Bedrock requests inside the API</label>
+<label><input type="radio" name="q14"> C) By controlling the rate of messages delivered to Lambda, preventing overload ✅</label>
+<label><input type="radio" name="q14"> D) By caching Bedrock responses in the queue</label>
+  </div>
+
+
+  <div class="question">
+    <h3>15. When a Lambda call to Amazon Bedrock is throttled, how can SQS ensure the message is retried safely?</h3>
+    <label><input type="radio" name="q15"> A) By sending the message directly to another Bedrock endpoint</label>
+<label><input type="radio" name="q15"> B) By duplicating the message in the queue</label>
+<label><input type="radio" name="q15"> C) By keeping the message invisible until the Lambda retries or visibility timeout expires ✅</label>
+<label><input type="radio" name="q15"> D) By encrypting the message for a retry-safe operation</label>
+  </div>
+
+
+  <div class="question">
+    <h3>16. You have a Lambda grading function that takes up to 60 seconds to process each student submission using Amazon Bedrock. What is the most appropriate value to set for the SQS visibility timeout?</h3>
+    <label><input type="radio" name="q16"> A) 5 seconds</label>
+<label><input type="radio" name="q16"> B) 60 seconds</label>
+<label><input type="radio" name="q16"> C) 90 seconds ✅</label>
+<label><input type="radio" name="q16"> D) 10 minutes</label>
+  </div>
+
+</section>
+</body>
+
+</html>
