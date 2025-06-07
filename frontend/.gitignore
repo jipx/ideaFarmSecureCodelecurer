@@ -1,0 +1,48 @@
+# Ignore Python cache and build
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE config
+.vscode/
+.idea/
+
+# Ignore dotenv
+.env
+
+# Streamlit secrets (global and nested)
+**/.streamlit/secrets.toml
+
+# Or specific to frontend folder
+frontend/.streamlit/secrets.toml
+
+# Node modules (for frontend, if any)
+node_modules/
+frontend/node_modules/
+
+# Logs
+*.log
+
+# Compiled JS/TS/React files (if used)
+*.map
+.next/
+out/
+build/
+
+# Optional: Ignore generated S3 upload ZIPs
+*.zip
