@@ -3,7 +3,7 @@
 This project provides a fully serverless, scalable platform to automate the grading of student secure code submissions using AWS Bedrock, Lambda, and Streamlit.
 
 ---
-
+https://jipx.github.io/ideaFarmSecureCodelecurer/Documentation/Eventbridge.html
 ## 📦 Features
 
 - 📤 Secure upload of student code ZIP files via signed S3 URLs
