@@ -2,6 +2,8 @@
 
 This guide walks you through setting up a pipeline that responds to `.zip` file uploads in an S3 bucket. When a student uploads a zip file, the system sends a custom message to an SQS queue using EventBridge, and that message triggers a Lambda function.
 
+![alt text](image.png)
+
 ---
 
 ## 🗂️ Architecture Overview
