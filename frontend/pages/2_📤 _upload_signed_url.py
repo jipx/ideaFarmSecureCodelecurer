@@ -20,19 +20,28 @@ if st.button("Get Signed URL and Upload") and zip_file:
         st.stop()
 
     with st.spinner("⏳ Uploading..."):
-        st.image("images/inprogress.gif", width=200)
+        # Dynamically resolve path to image
+        CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+        GIF_PATH = os.path.join(CURRENT_DIR, "..", "images", "inprogress.gif")
+
+        if os.path.exists(GIF_PATH):
+            st.image(GIF_PATH, width=200)
+        else:
+            st.warning("⚠️ Progress image not found.")
 
         try:
-            api_url= st.secrets["apigateway"]["signed_url_api"]
-           
+            api_url = st.secrets["apigateway"]["signed_url_api"]
             status_api_url = st.secrets["apigateway"]["status_api_url"]
+
             payload = {
                 "student_id": student_id,
                 "email": email,
                 "filename": zip_file.name
             }
+
             st.write("📡 Requesting signed URL...")
             st.json(payload)
+
             api_response = requests.post(api_url, json=payload, timeout=10)
             st.write("📥 Response from signed URL API:")
             st.json(api_response.json())
@@ -43,23 +52,20 @@ if st.button("Get Signed URL and Upload") and zip_file:
                 st.error("❌ Backend did not return a presigned URL under 'url'.")
                 st.json(response_json)
                 st.stop()
-            object_key = api_response.json().get("s3_key", f"submissions/{student_id}/submission.zip")
 
+            object_key = response_json.get("s3_key", f"submissions/{student_id}/submission.zip")
             st.code(signed_url, language="text")
 
-            upload_headers = {
-                "Content-Type": "application/zip"
-            }
-
+            upload_headers = {"Content-Type": "application/zip"}
             response = requests.put(signed_url, data=zip_file.getvalue(), headers=upload_headers)
+
             if response.status_code == 200:
                 st.success("✅ File uploaded successfully to S3")
-
                 parsed = urlparse(signed_url)
                 s3_url = f"https://{parsed.netloc}/{urllib.parse.quote(object_key)}"
                 st.markdown(f"**S3 Object URL:** [{s3_url}]({s3_url})")
 
-                # --- Polling for grading status ---
+                # Polling for grading status
                 status_url = f"{status_api_url}?submission_id={student_id}"
                 polling_message = st.empty()
                 download_link = st.empty()
