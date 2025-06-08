@@ -1,5 +1,21 @@
 import streamlit as st
 import json
+
+import os
+import sys
+
+# Dynamically add the parent directory to the path so 'utils' can be imported
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
+UTILS_DIR = os.path.join(PARENT_DIR, "utils")
+
+if UTILS_DIR not in sys.path:
+    sys.path.insert(0, UTILS_DIR)
+
+# Now import the utilities
+
+
+
 from utils.zip_utils import extract_files
 from utils.github_utils import upload_code_to_github, get_codeql_alerts, fetch_code_snippet
 from utils.download_utils import download_repo_zip
