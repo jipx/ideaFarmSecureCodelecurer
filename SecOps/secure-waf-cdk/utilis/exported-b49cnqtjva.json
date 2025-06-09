@@ -1,0 +1,28 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "FeedbackAPI",
+    "version" : "2025-06-01T07:44:33Z"
+  },
+  "servers" : [ {
+    "url" : "https://b49cnqtjva.execute-api.ap-northeast-1.amazonaws.com/{basePath}",
+    "variables" : {
+      "basePath" : {
+        "default" : "prod"
+      }
+    }
+  } ],
+  "paths" : {
+    "/feedback" : {
+      "post" : {
+        "x-amazon-apigateway-integration" : {
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:628902727523:function:BedrockFeedbackFunction/invocations",
+          "passthroughBehavior" : "when_no_match",
+          "type" : "aws_proxy"
+        }
+      }
+    }
+  },
+  "components" : { }
+}

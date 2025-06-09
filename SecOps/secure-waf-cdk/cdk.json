@@ -1,0 +1,25 @@
+{
+  "app": "python app.py",
+  "context": {
+    "apis": [
+      {
+        "arn": "arn:aws:apigateway:ap-northeast-1::/restapis/h2xytc3k1c/stages/prod"
+      },
+      {
+        "arn": "arn:aws:apigateway:ap-northeast-1::/restapis/zwt8qi6x33/stages/prod"
+      },
+      {
+        "arn": "arn:aws:apigateway:ap-northeast-1::/restapis/x6r8nro53c/stages/prod"
+      },
+      {
+        "arn": "arn:aws:apigateway:ap-northeast-1::/restapis/brusxlpum5/stages/prod"
+      },
+      {
+        "arn": "arn:aws:apigateway:ap-northeast-1::/restapis/u8w3qqosk4/stages/prod"
+      },
+      {
+        "arn": "arn:aws:apigateway:ap-northeast-1::/restapis/orr7xjr63m/stages/dev"
+      }
+    ]
+  }
+}

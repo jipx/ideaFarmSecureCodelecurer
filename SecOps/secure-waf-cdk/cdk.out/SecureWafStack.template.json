@@ -1,0 +1,604 @@
+{
+ "Resources": {
+  "EmergencyToggle60967EB9": {
+   "Type": "AWS::SSM::Parameter",
+   "Properties": {
+    "Name": "/waf/emergency-block",
+    "Type": "String",
+    "Value": "false"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/EmergencyToggle/Resource"
+   }
+  },
+  "AdminIPSet": {
+   "Type": "AWS::WAFv2::IPSet",
+   "Properties": {
+    "Addresses": [
+     "203.0.113.5/32"
+    ],
+    "IPAddressVersion": "IPV4",
+    "Name": "AllowAdminIP",
+    "Scope": "REGIONAL"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/AdminIPSet"
+   }
+  },
+  "SecureWebACL": {
+   "Type": "AWS::WAFv2::WebACL",
+   "Properties": {
+    "DefaultAction": {
+     "Block": {}
+    },
+    "Name": "SecureWebACL",
+    "Rules": [
+     {
+      "Action": {
+       "Allow": {}
+      },
+      "Name": "AllowAdminIP",
+      "Priority": 0,
+      "Statement": {
+       "IPSetReferenceStatement": {
+        "Arn": {
+         "Fn::GetAtt": [
+          "AdminIPSet",
+          "Arn"
+         ]
+        }
+       }
+      },
+      "VisibilityConfig": {
+       "CloudWatchMetricsEnabled": true,
+       "MetricName": "AllowAdmin",
+       "SampledRequestsEnabled": true
+      }
+     },
+     {
+      "Action": {
+       "Block": {}
+      },
+      "Name": "RateLimit",
+      "Priority": 1,
+      "Statement": {
+       "RateBasedStatement": {
+        "AggregateKeyType": "IP",
+        "Limit": 100
+       }
+      },
+      "VisibilityConfig": {
+       "CloudWatchMetricsEnabled": true,
+       "MetricName": "RateLimit",
+       "SampledRequestsEnabled": true
+      }
+     },
+     {
+      "Action": {
+       "Block": {}
+      },
+      "Name": "RegionCheck",
+      "Priority": 2,
+      "Statement": {
+       "ByteMatchStatement": {
+        "FieldToMatch": {
+         "SingleHeader": {
+          "Name": "X-Client-Region"
+         }
+        },
+        "PositionalConstraint": "EXACTLY",
+        "SearchString": "SG",
+        "TextTransformations": [
+         {
+          "Priority": 0,
+          "Type": "LOWERCASE"
+         }
+        ]
+       }
+      },
+      "VisibilityConfig": {
+       "CloudWatchMetricsEnabled": true,
+       "MetricName": "RegionCheck",
+       "SampledRequestsEnabled": true
+      }
+     }
+    ],
+    "Scope": "REGIONAL",
+    "VisibilityConfig": {
+     "CloudWatchMetricsEnabled": true,
+     "MetricName": "SecureWebACL",
+     "SampledRequestsEnabled": true
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/SecureWebACL"
+   }
+  },
+  "Assoc0": {
+   "Type": "AWS::WAFv2::WebACLAssociation",
+   "Properties": {
+    "ResourceArn": "arn:aws:apigateway:ap-northeast-1::/restapis/h2xytc3k1c/stages/prod",
+    "WebACLArn": {
+     "Fn::GetAtt": [
+      "SecureWebACL",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/Assoc0"
+   }
+  },
+  "Assoc1": {
+   "Type": "AWS::WAFv2::WebACLAssociation",
+   "Properties": {
+    "ResourceArn": "arn:aws:apigateway:ap-northeast-1::/restapis/zwt8qi6x33/stages/prod",
+    "WebACLArn": {
+     "Fn::GetAtt": [
+      "SecureWebACL",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/Assoc1"
+   }
+  },
+  "Assoc2": {
+   "Type": "AWS::WAFv2::WebACLAssociation",
+   "Properties": {
+    "ResourceArn": "arn:aws:apigateway:ap-northeast-1::/restapis/x6r8nro53c/stages/prod",
+    "WebACLArn": {
+     "Fn::GetAtt": [
+      "SecureWebACL",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/Assoc2"
+   }
+  },
+  "Assoc3": {
+   "Type": "AWS::WAFv2::WebACLAssociation",
+   "Properties": {
+    "ResourceArn": "arn:aws:apigateway:ap-northeast-1::/restapis/brusxlpum5/stages/prod",
+    "WebACLArn": {
+     "Fn::GetAtt": [
+      "SecureWebACL",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/Assoc3"
+   }
+  },
+  "Assoc4": {
+   "Type": "AWS::WAFv2::WebACLAssociation",
+   "Properties": {
+    "ResourceArn": "arn:aws:apigateway:ap-northeast-1::/restapis/u8w3qqosk4/stages/prod",
+    "WebACLArn": {
+     "Fn::GetAtt": [
+      "SecureWebACL",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/Assoc4"
+   }
+  },
+  "Assoc5": {
+   "Type": "AWS::WAFv2::WebACLAssociation",
+   "Properties": {
+    "ResourceArn": "arn:aws:apigateway:ap-northeast-1::/restapis/orr7xjr63m/stages/dev",
+    "WebACLArn": {
+     "Fn::GetAtt": [
+      "SecureWebACL",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/Assoc5"
+   }
+  },
+  "UpdateWafLambdaServiceRole780FC6ED": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/UpdateWafLambda/ServiceRole/Resource"
+   }
+  },
+  "UpdateWafLambdaServiceRoleDefaultPolicy6D00B770": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "wafv2:GetWebACL",
+        "wafv2:UpdateWebACL",
+        "ssm:GetParameter"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "UpdateWafLambdaServiceRoleDefaultPolicy6D00B770",
+    "Roles": [
+     {
+      "Ref": "UpdateWafLambdaServiceRole780FC6ED"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/UpdateWafLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "UpdateWafLambda113EEF1B": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\nimport boto3\n\nssm = boto3.client(\"ssm\")\nwaf = boto3.client(\"wafv2\")\n\ndef handler(event, context):\n    toggle = ssm.get_parameter(Name=\"/waf/emergency-block\")['Parameter']['Value']\n    acl = waf.get_web_acl(Name='SecureWebACL', Scope='REGIONAL')\n    token = acl['LockToken']\n    id = acl['WebACL']['Id']\n    config = acl['WebACL']\n\n    waf.update_web_acl(\n        Name='SecureWebACL',\n        Scope='REGIONAL',\n        Id=id,\n        LockToken=token,\n        DefaultAction={\"Block\": {}} if toggle == 'true' else config['DefaultAction'],\n        VisibilityConfig=config['VisibilityConfig'],\n        Rules=[] if toggle == 'true' else config['Rules']\n    )\n    return {\"mode\": toggle}\n"
+    },
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "UpdateWafLambdaServiceRole780FC6ED",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.11",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "UpdateWafLambdaServiceRoleDefaultPolicy6D00B770",
+    "UpdateWafLambdaServiceRole780FC6ED"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/UpdateWafLambda/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/0WNywrCMBBFv8V9OvbxBaUgCC5Cu3Ap0zTVsU0CSWopIf8uqaire+4DbgllnkNxwNVlYpiymXoInUcxMVzdLTinkrek7xwtKumlZc2ofyayFcdXCaEZ9Zl30qf2Kvu6ufypds4IQk9GRzaj6geEcFq0SEmafTkyQgWhNbNM8a7czCS2/XSnGFkrnVmskJHxzT+MPlZQVFAdno4os4v2pCS0H30DYF+OcOIAAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "SecureWafStack/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-3"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-4"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "il-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Equals": [
+      {
+       "Ref": "AWS::Region"
+      },
+      "us-west-2"
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

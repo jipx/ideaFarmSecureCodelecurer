@@ -1,0 +1,144 @@
+{
+  "version": "44.0.0",
+  "artifacts": {
+    "SecureWafStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "SecureWafStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "SecureWafStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/unknown-region",
+      "properties": {
+        "templateFile": "SecureWafStack.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-${AWS::Region}",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/3f46ccae8c6ff6fbb8c52fa46dd7989d0a11cba8ea6e8c6b8a5e381b53e410ef.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "SecureWafStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "SecureWafStack.assets"
+      ],
+      "metadata": {
+        "/SecureWafStack/EmergencyToggle/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EmergencyToggle60967EB9"
+          }
+        ],
+        "/SecureWafStack/AdminIPSet": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AdminIPSet"
+          }
+        ],
+        "/SecureWafStack/SecureWebACL": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SecureWebACL"
+          }
+        ],
+        "/SecureWafStack/Assoc0": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Assoc0"
+          }
+        ],
+        "/SecureWafStack/Assoc1": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Assoc1"
+          }
+        ],
+        "/SecureWafStack/Assoc2": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Assoc2"
+          }
+        ],
+        "/SecureWafStack/Assoc3": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Assoc3"
+          }
+        ],
+        "/SecureWafStack/Assoc4": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Assoc4"
+          }
+        ],
+        "/SecureWafStack/Assoc5": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "Assoc5"
+          }
+        ],
+        "/SecureWafStack/UpdateWafLambda/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UpdateWafLambdaServiceRole780FC6ED"
+          }
+        ],
+        "/SecureWafStack/UpdateWafLambda/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UpdateWafLambdaServiceRoleDefaultPolicy6D00B770"
+          }
+        ],
+        "/SecureWafStack/UpdateWafLambda/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "UpdateWafLambda113EEF1B"
+          }
+        ],
+        "/SecureWafStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/SecureWafStack/CDKMetadata/Condition": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadataAvailable"
+          }
+        ],
+        "/SecureWafStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/SecureWafStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "SecureWafStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  },
+  "minimumCliVersion": "2.1018.0"
+}

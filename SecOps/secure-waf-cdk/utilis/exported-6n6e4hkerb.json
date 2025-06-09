@@ -1,0 +1,40 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "owasp-api",
+    "version" : "2025-05-25T09:48:34Z"
+  },
+  "servers" : [ {
+    "url" : "https://6n6e4hkerb.execute-api.ap-northeast-1.amazonaws.com/{basePath}",
+    "variables" : {
+      "basePath" : {
+        "default" : "prod"
+      }
+    }
+  } ],
+  "paths" : {
+    "/ask" : {
+      "post" : {
+        "security" : [ {
+          "CognitoAuth" : [ ]
+        } ],
+        "x-amazon-apigateway-integration" : {
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:628902727523:function:owasp-bedrock-agent/invocations",
+          "passthroughBehavior" : "when_no_match",
+          "type" : "aws_proxy"
+        }
+      }
+    }
+  },
+  "components" : {
+    "securitySchemes" : {
+      "CognitoAuth" : {
+        "type" : "apiKey",
+        "name" : "Authorization",
+        "in" : "header",
+        "x-amazon-apigateway-authtype" : "cognito_user_pools"
+      }
+    }
+  }
+}

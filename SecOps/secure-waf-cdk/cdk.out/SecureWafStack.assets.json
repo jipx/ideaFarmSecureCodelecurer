@@ -1,0 +1,20 @@
+{
+  "version": "44.0.0",
+  "files": {
+    "3f46ccae8c6ff6fbb8c52fa46dd7989d0a11cba8ea6e8c6b8a5e381b53e410ef": {
+      "displayName": "SecureWafStack Template",
+      "source": {
+        "path": "SecureWafStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-current_region": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "3f46ccae8c6ff6fbb8c52fa46dd7989d0a11cba8ea6e8c6b8a5e381b53e410ef.json",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
