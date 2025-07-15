@@ -39,6 +39,7 @@ This provisions:
 
 **CloudFormation template**: [`secure_code_grader_complete.yaml`](infra/secure_code_grader_complete.yaml)
 
+[![Watch the 3 miniute video on YouTube](https://img.youtube.com/vi/cNdaybf1z-G4/0.jpg)](https://www.youtube.com/watch?v=Ndaybf1z-G4)
 ---
 
 ## 🔗 API Endpoints
