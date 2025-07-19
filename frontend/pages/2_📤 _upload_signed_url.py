@@ -12,7 +12,7 @@ student_id = st.text_input("Student ID", value="jipx901")
 email = st.text_input("Email", value="student001@example.com")
 zip_file = st.file_uploader("Upload ZIP file", type=["zip"])
 
-MAX_SIZE_MB = 200
+MAX_SIZE_MB = 5
 
 if st.button("Get Signed URL and Upload") and zip_file:
     if zip_file.size > MAX_SIZE_MB * 1024 * 1024:
