@@ -6,6 +6,11 @@ This project provides a fully serverless, scalable platform to automate the grad
 https://jipx.github.io/ideaFarmSecureCodelecurer/Documentation/Eventbridge.html
 
 [![Watch the 3 miniute video on YouTube](https://img.youtube.com/vi/cNdaybf1z-G4/0.jpg)](https://www.youtube.com/watch?v=Ndaybf1z-G4)
+
+CDK for the project Explained: 
+[![Watch the 3 miniute video on YouTube](https://img.youtube.com/vi/cBpSr9RiRhkU/0.jpg)](https://www.youtube.com/watch?v=BpSr9RiRhkU)
+
+
 ## 📦 Features
 
 - 📤 Secure upload of student code ZIP files via signed S3 URLs
