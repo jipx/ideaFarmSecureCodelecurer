@@ -17,12 +17,22 @@ submission_id = st.text_input("Enter your Submission ID", "")
 auto_refresh = st.checkbox("Auto-refresh status every 10 seconds")
 show_raw = st.checkbox("Show raw API request and response")
 
+color_map = {
+    "completed": "green",
+    "pending": "orange",
+    "failed": "red",
+    "unknown": "gray"
+}
+
 def display_json_report(data: dict):
     st.subheader("📝 Secure Code Grading Report")
     st.markdown("---")
 
     st.write(f"**📌 Submission ID:** `{data.get('submission_id', 'N/A')}`")
-    st.write(f"**📊 Status:** `{data.get('status', 'unknown').capitalize()}`")
+    
+    status = data.get("status", "unknown").lower()
+    color = color_map.get(status, "gray")
+    st.markdown(f"**📊 Status:** <span style='color:{color}; font-weight:bold'>{status.capitalize()}</span>", unsafe_allow_html=True)
 
     st.markdown("**💬 Feedback:**")
     st.info(data.get("feedback", "No feedback provided."), icon="💡")
