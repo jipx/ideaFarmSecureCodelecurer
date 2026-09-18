@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120" role="img" aria-labelledby="title desc">
+  <title id="title">FruitHarvest multichannel selling architecture</title>
+  <desc id="desc">Serverless AWS architecture connecting web, marketplace, social and assisted sales to canonical order intake, atomic inventory, event-driven fulfilment, governed Bedrock merchandising and operational evidence.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071b2c"/><stop offset="1" stop-color="#123f4a"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity=".25"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#56d7ff"/></marker>
+    <style>
+      .title{font:700 42px Arial;fill:#fff}.sub{font:400 19px Arial;fill:#b8d4de}.lane{fill:#0d293b;stroke:#31586b;stroke-width:2}.box{fill:#fff;stroke:#b9d5df;stroke-width:2;filter:url(#shadow)}.aws{fill:#f59d28}.h{font:700 18px Arial;fill:#102c3a}.t{font:400 14px Arial;fill:#355466}.sm{font:700 12px Arial;fill:#617d88;letter-spacing:1px}.pill{fill:#e8f8fc;stroke:#71cde5}.line{stroke:#56d7ff;stroke-width:4;fill:none;marker-end:url(#arrow)}.event{stroke:#f8ae41;stroke-width:3;stroke-dasharray:9 7;fill:none;marker-end:url(#arrow)}.guard{fill:#edf9f0;stroke:#52a76b;stroke-width:2}.risk{fill:#fff2ee;stroke:#df755a;stroke-width:2}.foot{font:700 15px Arial;fill:#d7edf4}.num{font:700 14px Arial;fill:white}.pilltext{font:700 13px Arial;fill:#145369}
+    </style>
+  </defs>
+  <rect width="1800" height="1120" fill="url(#bg)"/>
+  <text x="70" y="75" class="title">FruitHarvest Multichannel Selling App</text>
+  <text x="70" y="110" class="sub">Serverless-first commerce architecture • deterministic stock and payment • governed AI merchandising • measurable evidence</text>
+
+  <rect x="55" y="150" width="1690" height="770" rx="28" class="lane"/>
+  <text x="85" y="190" class="sm" fill="#9bdcf0">AWS CLOUD • CONTRACT-FIRST TRUST BOUNDARY</text>
+
+  <g transform="translate(85 235)">
+    <rect width="230" height="380" rx="20" class="box"/>
+    <rect width="230" height="52" rx="20" class="aws"/><rect y="32" width="230" height="20" class="aws"/>
+    <text x="20" y="34" class="h">Sales channels</text>
+    <text x="20" y="92" class="h">Farm web shop</text><text x="20" y="116" class="t">CloudFront + S3 SPA</text>
+    <text x="20" y="162" class="h">Marketplaces</text><text x="20" y="186" class="t">Signed webhooks / APIs</text>
+    <text x="20" y="232" class="h">Social commerce</text><text x="20" y="256" class="t">Approved channel adapter</text>
+    <text x="20" y="302" class="h">Assisted selling</text><text x="20" y="326" class="t">Cognito-authenticated staff</text>
+    <rect x="18" y="342" width="194" height="25" rx="12" class="pill"/><text x="115" y="360" text-anchor="middle" class="pilltext">CHANNEL IDENTITY</text>
+  </g>
+
+  <path d="M315 425 H395" class="line"/>
+  <g transform="translate(395 235)">
+    <rect width="300" height="380" rx="20" class="box"/>
+    <rect width="300" height="52" rx="20" class="aws"/><rect y="32" width="300" height="20" class="aws"/>
+    <text x="20" y="34" class="h">Secure canonical intake</text>
+    <text x="20" y="92" class="h">AWS WAF + API Gateway</text><text x="20" y="116" class="t">Rate limit, authenticate, validate</text>
+    <text x="20" y="162" class="h">AWS Lambda adapters</text><text x="20" y="186" class="t">Map channel payload → Order v1</text>
+    <text x="20" y="232" class="h">Idempotency registry</text><text x="20" y="256" class="t">channelId + externalOrderId</text>
+    <rect x="18" y="285" width="264" height="72" rx="12" class="guard"/>
+    <text x="32" y="311" class="h">Acceptance gate</text><text x="32" y="335" class="t">202 ACCEPTED or 409 CONFLICT</text>
+  </g>
+
+  <path d="M695 425 H775" class="line"/>
+  <g transform="translate(775 215)">
+    <rect width="315" height="420" rx="20" class="box"/>
+    <rect width="315" height="52" rx="20" fill="#35a864"/><rect y="32" width="315" height="20" fill="#35a864"/>
+    <text x="20" y="34" class="h" fill="#fff">Deterministic commerce core</text>
+    <text x="20" y="92" class="h">DynamoDB transactions</text><text x="20" y="116" class="t">Atomic stock reservation</text>
+    <text x="20" y="160" class="h">Order state machine</text><text x="20" y="184" class="t">Explicit allowed transitions</text>
+    <text x="20" y="228" class="h">Price and payment ledger</text><text x="20" y="252" class="t">Versioned facts + idempotency</text>
+    <rect x="18" y="280" width="279" height="112" rx="12" class="guard"/>
+    <text x="32" y="307" class="h">Business invariants</text>
+    <text x="32" y="333" class="t">• Stock never becomes negative</text>
+    <text x="32" y="357" class="t">• One unit → at most one order</text>
+    <text x="32" y="381" class="t">• One logical order → one charge</text>
+  </g>
+
+  <path d="M1090 425 H1170" class="event"/>
+  <g transform="translate(1170 235)">
+    <rect width="270" height="380" rx="20" class="box"/>
+    <rect width="270" height="52" rx="20" class="aws"/><rect y="32" width="270" height="20" class="aws"/>
+    <text x="20" y="34" class="h">Durable orchestration</text>
+    <text x="20" y="92" class="h">Amazon EventBridge</text><text x="20" y="116" class="t">Order domain events</text>
+    <text x="20" y="162" class="h">Amazon SQS + DLQ</text><text x="20" y="186" class="t">Backpressure, retry, replay</text>
+    <text x="20" y="232" class="h">AWS Step Functions</text><text x="20" y="256" class="t">Payment and fulfilment saga</text>
+    <text x="20" y="302" class="h">Bounded workers</text><text x="20" y="326" class="t">Notify • fulfil • sync channels</text>
+  </g>
+
+  <path d="M1440 425 H1500" class="line"/>
+  <g transform="translate(1500 235)">
+    <rect width="215" height="380" rx="20" class="box"/>
+    <rect width="215" height="52" rx="20" class="aws"/><rect y="32" width="215" height="20" class="aws"/>
+    <text x="18" y="34" class="h">Outcomes</text>
+    <text x="18" y="92" class="h">Fulfilment</text><text x="18" y="116" class="t">Pick, pack, delivery</text>
+    <text x="18" y="162" class="h">Channel sync</text><text x="18" y="186" class="t">Availability and status</text>
+    <text x="18" y="232" class="h">Customer notice</text><text x="18" y="256" class="t">Receipt and tracking</text>
+    <rect x="16" y="284" width="183" height="72" rx="12" class="guard"/>
+    <text x="30" y="312" class="h">Terminal state</text><text x="30" y="337" class="t">One auditable outcome</text>
+  </g>
+
+  <g transform="translate(395 670)">
+    <rect width="560" height="205" rx="20" class="box"/>
+    <rect width="560" height="48" rx="20" fill="#8d59c7"/><rect y="30" width="560" height="18" fill="#8d59c7"/>
+    <text x="20" y="32" class="h" fill="#fff">Governed AI merchandising lane</text>
+    <text x="22" y="82" class="h">Verified catalogue + provenance → Amazon Bedrock</text>
+    <text x="22" y="110" class="t">Draft descriptions • adapt tone by channel • explain demand signals</text>
+    <rect x="20" y="132" width="250" height="50" rx="12" class="risk"/><text x="35" y="153" class="h">Claim validation</text><text x="35" y="173" class="t">Block unsupported claims</text>
+    <rect x="290" y="132" width="250" height="50" rx="12" class="guard"/><text x="305" y="153" class="h">Seller approval</text><text x="305" y="173" class="t">Human owns publication</text>
+  </g>
+  <path d="M930 635 V670" class="event"/>
+
+  <g transform="translate(1035 670)">
+    <rect width="680" height="205" rx="20" class="box"/>
+    <rect width="680" height="48" rx="20" fill="#2678b8"/><rect y="30" width="680" height="18" fill="#2678b8"/>
+    <text x="20" y="32" class="h" fill="#fff">Visibility, security and evidence</text>
+    <text x="22" y="82" class="h">CloudWatch + X-Ray</text><text x="22" y="106" class="t">Correlation IDs, P95 latency, queue age, terminal states</text>
+    <text x="355" y="82" class="h">CloudTrail + KMS</text><text x="355" y="106" class="t">Attributable changes, encryption and audit</text>
+    <text x="22" y="148" class="h">Evidence gates</text><text x="22" y="174" class="t">0 oversells • 0 duplicate charges • 100% accepted orders terminal</text>
+  </g>
+
+  <g transform="translate(70 960)">
+    <rect width="1660" height="105" rx="20" fill="#0a2333" stroke="#3f6878"/>
+    <text x="24" y="31" class="foot">AWS WELL-ARCHITECTED ALIGNMENT</text>
+    <g transform="translate(24 48)"><rect width="245" height="38" rx="19" fill="#235d73"/><text x="122" y="25" text-anchor="middle" class="num">Operational Excellence</text></g>
+    <g transform="translate(286 48)"><rect width="200" height="38" rx="19" fill="#235d73"/><text x="100" y="25" text-anchor="middle" class="num">Security</text></g>
+    <g transform="translate(503 48)"><rect width="210" height="38" rx="19" fill="#235d73"/><text x="105" y="25" text-anchor="middle" class="num">Reliability</text></g>
+    <g transform="translate(730 48)"><rect width="260" height="38" rx="19" fill="#235d73"/><text x="130" y="25" text-anchor="middle" class="num">Performance Efficiency</text></g>
+    <g transform="translate(1007 48)"><rect width="235" height="38" rx="19" fill="#235d73"/><text x="117" y="25" text-anchor="middle" class="num">Cost Optimization</text></g>
+    <g transform="translate(1259 48)"><rect width="220" height="38" rx="19" fill="#235d73"/><text x="110" y="25" text-anchor="middle" class="num">Sustainability</text></g>
+  </g>
+</svg>
